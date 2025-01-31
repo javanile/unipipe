@@ -2,18 +2,16 @@
 
 ## 🌟 Introduction
 
-Unipipe is a groundbreaking standard for CI/CD and development workflow automation that solves the fundamental challenges of existing pipeline management tools. Unlike traditional task runners or CI/CD platforms, Unipipe offers a truly portable, dependency-free, and platform-agnostic approach to defining and executing development workflows.
+Unipipe is a groundbreaking standard for CI/CD and development workflow automation that solves the fundamental challenges of existing pipeline management tools.
 
 ## 💡 The Problem Unipipe Solves
 
-Current CI/CD tools suffer from critical limitations:
+Current CI/CD tools suffer from:
 - Vendor lock-in
 - Complex configuration files
 - Limited portability
 - Steep learning curves
 - Inability to test pipelines locally
-
-Unipipe eliminates these obstacles by introducing a simple, universal standard for pipeline definition and execution.
 
 ## ✨ Core Principles
 
@@ -22,44 +20,85 @@ Unipipe eliminates these obstacles by introducing a simple, universal standard f
 - **Simplicity**: Human-readable, machine-executable
 - **Platform Agnostic**: Works with GitHub, GitLab, Jenkins, and beyond
 
-## 🛠 How Unipipe Works
+## 🏗️ Unipipe Docblock Primitives
 
-### The unipipe.sh File
+Unipipe uses declarative docblocks to define task execution context and matrix-based configurations.
 
-A minimal, POSIX-compliant shell script that defines your project's tasks:
+### Docblock Primitive Example
 
 ```sh
 #!/bin/sh
 
+# @task build
+# @trigger pull_request:main
+# @requires test
+# @env production,staging
+# @matrix os=[ubuntu-latest,macos-latest]
+# @matrix node=[14,16,18]
+# @matrix exclude=[
+#   {os:macos-latest, node:14}
+# ]
 build() {
-    echo "Building the project..."
     make
 }
 
+# @task test
+# @trigger always
+# @env development,staging,production
 test() {
-    echo "Running tests..."
     ./run-tests.sh
 }
 
+# @task deploy
+# @trigger push:main
+# @requires build,test
+# @env production
 deploy() {
-    echo "Deploying application..."
-    scp app.tar.gz user@server:/deploy/
+    ./deploy-production.sh
 }
 ```
 
-### Execution Flexibility
+### Docblock Primitive Reference
 
-Run tasks locally or in CI/CD:
+| Primitive      | Description | Example |
+|----------------|-------------|---------|
+| `@task`        | Define task name | `@task build` |
+| `@trigger`     | Specify execution triggers | `@trigger push:main pull_request:opened` |
+| `@requires`    | Define task dependencies | `@requires lint test` |
+| `@env`         | Limit task to specific environments | `@env production,staging` |
+| `@matrix`      | Create combinatorial test/build matrices | `@matrix os=[linux,macos] node=[14,16,18]` |
+
+## 💻 Local Task Execution
+
+Execute tasks directly using standard shell without any additional tooling:
 
 ```sh
-# Local execution
+# Execute a specific task locally
 sh -c ". ./unipipe.sh && build"
 
-# With unipipe client
-unipipe build
-unipipe test
-unipipe deploy
+# Run multiple tasks in sequence
+sh -c ". ./unipipe.sh && build && test"
+
+# Source the file and run interactively
+sh
+. ./unipipe.sh
+build
 ```
+
+Key Benefits:
+- Zero dependencies
+- Works on any POSIX-compliant system
+- No special client required
+- Identical execution environment locally and in CI
+
+## 🚀 Key Features
+
+- **Universal Compatibility**: Works with any POSIX-compliant environment
+- **Automatic CI/CD Configuration Generation**
+- **Local and Remote Execution**
+- **No Additional Dependencies**
+- **Advanced Matrix Testing**
+- **Environment-Aware Execution**
 
 ## 🔌 Seamless CI/CD Integration
 
@@ -72,14 +111,6 @@ unipipe --build github
 # Generate GitLab CI configuration
 unipipe --build gitlab
 ```
-
-## 🚀 Key Features
-
-- **Universal Compatibility**: Works with any POSIX-compliant environment
-- **Automatic CI/CD Configuration Generation**
-- **Local and Remote Execution**
-- **No Additional Dependencies**
-- **Event and Conditional Support**
 
 ## 🤔 Unipipe vs Existing Tools
 
@@ -99,14 +130,8 @@ unipipe --build gitlab
 ## 💻 Getting Started
 
 1. Create `unipipe.sh` in your project
-2. Define your tasks as shell functions
+2. Define your tasks using docblock primitives
 3. Use the `unipipe` client to execute or generate configurations
-
-## 📦 Installation
-
-```sh
-# Coming soon - installation instructions
-```
 
 ## 🌍 Supported Platforms
 

@@ -112,6 +112,13 @@ unipipe --build github
 unipipe --build gitlab
 ```
 
+Simulate local trigger to debug the pipeline flow
+
+```sh
+# Execute the pipeline locally as effect of a pull request
+unipipe --trigger pull_request
+```
+
 ## 🤔 Unipipe vs Existing Tools
 
 ### Compared to Dagger

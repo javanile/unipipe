@@ -2,5 +2,5 @@
 
 build() {
     echo "Building..."
-    go build -o unipipe main.go
+    make build
 }
